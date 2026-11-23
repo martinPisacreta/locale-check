@@ -192,6 +192,34 @@ class LocaleCheckTests(unittest.TestCase):
         self.assertEqual(report['summary']['plural_forms'], 1)
         self.assertFalse(checker.has_errors(report))
 
+    def test_added_plural_form_with_invented_named_variable_fails(self):
+        report = checker.compare(
+            {'cart': {'one': '%{count} item', 'other': '%{count} items'}},
+            {'cart': {'one': '%{count} produkt', 'few': '%{total} produkty',
+                      'other': '%{count} produktów'}},
+        )
+        self.assertEqual([item['key'] for item in report['findings']['variables']], ['cart.few'])
+        self.assertIn('total', report['findings']['variables'][0]['reason'])
+        self.assertTrue(checker.has_errors(report))
+
+    def test_added_plural_form_with_invented_numbered_variable_fails(self):
+        report = checker.compare(
+            {'cart': {'one': '%1$d item in %2$s', 'other': '%1$d items in %2$s'}},
+            {'cart': {'one': '%1$d produkt w %2$s', 'few': '%1$d produkty w %3$s',
+                      'other': '%1$d produktów w %2$s'}},
+        )
+        self.assertEqual([item['key'] for item in report['findings']['variables']], ['cart.few'])
+        self.assertTrue(checker.has_errors(report))
+
+    def test_added_plural_form_may_drop_or_reuse_source_variables(self):
+        report = checker.compare(
+            {'cart': {'one': 'One item in %{cart_name}', 'other': '%{count} items in %{cart_name}'}},
+            {'cart': {'one': 'Jeden produkt w %{cart_name}', 'few': '%{count} produkty w %{cart_name}',
+                      'many': 'Wiele produktów', 'other': '%{count} produktu w %{cart_name}'}},
+        )
+        self.assertFalse(report['findings']['variables'])
+        self.assertFalse(checker.has_errors(report))
+
     def test_entire_missing_plural_group_is_not_suppressed(self):
         report = checker.compare({'cart': {'one': 'One', 'other': 'Several'}}, {})
         self.assertEqual(report['summary']['missing'], 2)

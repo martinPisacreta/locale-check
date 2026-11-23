@@ -3,7 +3,7 @@
 A small command-line check that compares a translated locale file with its source file and reports what usually breaks at runtime:
 
 - **missing and extra keys** (nested keys are flattened with dots; arrays use their index)
-- **placeholders**: Rails/i18n `%{name}` and `%<name>s`, Mustache/i18next `{{name}}`, ICU-style `{name}`, numbered printf `%1$s` (may move), unnumbered printf `%s`/`%d`/`%.1f` (order must match); occurrences are counted, `%%` is ignored
+- **placeholders**: Rails/i18n `%{name}` and `%<name>s`, Mustache/i18next `{{name}}`, ICU-style `{name}`, numbered printf `%1$s` (may move), unnumbered printf `%s`/`%d`/`%.1f` (order must match); occurrences are counted, `%%` is ignored; plural forms that only the translation has (`few`, `many`…) may drop a variable but must not invent one
 - **HTML tags**: same tags and attributes, and correct nesting in both files (void tags like `<br>` are allowed), also in plural forms that only the translation has (`few`, `many`…)
 - **link markers** `__text__`: the text inside may be translated, but each marker has to survive and be closed
 - **plural forms** (`one`, `other`, `few`…) that differ: reported for review, not as an error, because languages need different forms
@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: martinPisacreta/locale-check
-          ref: v0.1.1
+          ref: v0.1.2
           path: .locale-check
       - uses: actions/setup-python@v5
         with:
@@ -83,7 +83,7 @@ This repository's own [CI](.github/workflows/ci.yml) runs the tests, accepts a c
 python -m unittest -v test_locale_check
 ```
 
-35 tests, including the examples in `ejemplos/`.
+38 tests, including the examples in `ejemplos/`.
 
 ## Limits
 

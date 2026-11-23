@@ -235,6 +235,26 @@ def compare(source, translation):
             if isinstance(src.get(ref_key), str):
                 reference = (form, src[ref_key])
                 break
+        # A form may legitimately drop a variable (Russian "one" without the number), but it
+        # must not invent one: every named or numbered variable has to exist somewhere in the
+        # source plural group (Codex audit 23/11 13:59Z).
+        allowed_named, allowed_numbered = collections.Counter(), collections.Counter()
+        for form in src_groups[parent]:
+            ref_text = src.get(f"{parent}.{form}" if parent else form)
+            if isinstance(ref_text, str):
+                named, numbered, _ = variables(ref_text)
+                allowed_named |= named
+                allowed_numbered |= numbered
+        named, numbered, _ = variables(translated)
+        var_reasons = []
+        invented = sorted(set(named) - set(allowed_named))
+        if invented:
+            var_reasons.append(f"variables con nombre que no existen en el grupo de origen: {invented!r}")
+        invented_numbered = sorted(set(numbered) - set(allowed_numbered))
+        if invented_numbered:
+            var_reasons.append(f"printf numerados que no existen en el grupo de origen: {invented_numbered!r}")
+        if var_reasons:
+            add("variables", key, "; ".join(var_reasons) + " (forma plural que solo tiene la traducción)")
         html_translated = NAMED.sub('', translated)
         html_reasons = []
         if reference is not None:
