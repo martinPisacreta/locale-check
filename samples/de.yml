@@ -1,0 +1,15 @@
+de:
+  checkout:
+    title: "Checkout"
+    total: "Summe: %{betrag}"
+    items:
+      one: "%{count} Artikel im Warenkorb"
+      other: "%{count} Artikel im Warenkorb"
+    terms_html: 'Ich akzeptiere die <a href="%{url}">AGB und die <strong>Datenschutzerklärung</strong>'
+    shipped: "Versendet von %s am %s"
+    welcome: "Hallo %1$s, du hast %1$d neue Nachrichten"
+    discount: "Spare heute %.1f%%"
+  errors:
+    blank: "darf nicht leer sein"
+    too_long: "ist zu lang (maximal %{count} Zeichen)"
+    obsolete: "alt"

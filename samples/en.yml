@@ -1,0 +1,15 @@
+en:
+  checkout:
+    title: "Checkout"
+    total: "Total: %{amount}"
+    items:
+      one: "%{count} item in your cart"
+      other: "%{count} items in your cart"
+    terms_html: 'I accept the <a href="%{url}">terms</a> and <strong>privacy policy</strong>'
+    shipped: "Shipped on %s by %s"
+    welcome: "Hello %1$s, you have %2$d new messages"
+    discount: "Save %.1f%% today"
+    empty: "Your cart is empty"
+  errors:
+    blank: "can't be blank"
+    too_long: "is too long (maximum is %{count} characters)"

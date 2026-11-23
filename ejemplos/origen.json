@@ -1,0 +1,11 @@
+{
+  "checkout": {
+    "welcome": "Hello {name}",
+    "receipt": "%<name>s paid %5.2f",
+    "html": "<b><i>Ready</i></b>",
+    "labels": ["Open {name}", "Closed"],
+    "intentional": "API",
+    "numbered": "%1$s paid %2$d",
+    "limit": 3
+  }
+}

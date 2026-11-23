@@ -1,0 +1,7 @@
+pl:
+  a: "%d punktów ma %s"
+  files:
+    one: "%{count} plik"
+    few: "%{count} pliki"
+    many: "%{count} plików"
+    other: "%{count} pliku"

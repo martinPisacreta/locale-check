@@ -1,0 +1,15 @@
+pt-BR:
+  shop:
+    title: Bem-vindo ao Porto
+    extra: Veja as novidades
+    count: '%{total} encomendas'
+    printf: '%d entregou %s encomendas'
+    numbered: '%2$s enviado por %1$s'
+    greeting: Olá
+    link: '<a href="/help">Ajuda'
+    brand: Harbor
+    short: OK
+    parcels:
+      one: '%{count} encomenda'
+      many: '%{count} encomendas'
+      other: '%{count} encomendas'

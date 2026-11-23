@@ -1,0 +1,1 @@
+{"nav": {"home": "Home", "profile": "Hi {{name}}, view profile"}, "toast": {"saved": "Saved {count} files to {folder}", "deleted": "Deleted <b>{{item}}</b>"}}

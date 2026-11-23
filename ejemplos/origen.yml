@@ -1,0 +1,15 @@
+en:
+  shop:
+    title: Welcome to Harbor
+    missing: Track your parcel
+    count: '%{count} parcels'
+    printf: '%s delivered %d parcels'
+    numbered: '%1$s sent %2$s'
+    greeting: 'Hello {{name}}'
+    link: '<a href="/help">Help</a>'
+    brand: Harbor
+    short: OK
+    parcels:
+      one: '%{count} parcel'
+      few: '%{count} parcels'
+      other: '%{count} parcels'
