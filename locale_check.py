@@ -165,12 +165,15 @@ def compare(source, translation):
         findings[kind].append({"key": key, "reason": reason})
 
     plural_keys = set()
+    added_forms = {}  # plural form that only the translation has -> (parent, form)
     for parent in sorted(src_groups.keys() & dst_groups.keys()):
         only_src = src_groups[parent] - dst_groups[parent]
         only_dst = dst_groups[parent] - src_groups[parent]
         if only_src or only_dst:
             for form in only_src | only_dst:
                 plural_keys.add(f"{parent}.{form}" if parent else form)
+            for form in only_dst:
+                added_forms[f"{parent}.{form}" if parent else form] = (parent, form)
             add("plural_forms", parent,
                 f"Solo en origen: {', '.join(sorted(only_src)) or 'ninguna'}; "
                 f"solo en traducción: {', '.join(sorted(only_dst)) or 'ninguna'}; "
@@ -218,6 +221,30 @@ def compare(source, translation):
             add("html", key, "; ".join(html_reasons))
         if original == translated and sum(c.isalpha() for c in original) >= 3:
             add("identical", key, "Texto idéntico al origen; puede ser intencional.")
+    # Plural forms that only the target language needs (few, many...) have no source
+    # leaf of their own, so their HTML is checked against the source "other" form
+    # (or the first shared form) and for nesting (Codex audit 23/11 13:17Z).
+    for key in sorted(added_forms):
+        translated = dst.get(key)
+        if not isinstance(translated, str):
+            continue
+        parent, _ = added_forms[key]
+        reference = None
+        for form in ("other", *sorted(src_groups[parent])):
+            ref_key = f"{parent}.{form}" if parent else form
+            if isinstance(src.get(ref_key), str):
+                reference = (form, src[ref_key])
+                break
+        html_translated = NAMED.sub('', translated)
+        html_reasons = []
+        if reference is not None:
+            html_reference = NAMED.sub('', reference[1])
+            if collections.Counter(TAGS.findall(html_reference)) != collections.Counter(TAGS.findall(html_translated)):
+                html_reasons.append(f"las etiquetas HTML o sus atributos difieren de la forma «{reference[0]}» del origen")
+        if not nesting_ok(html_translated):
+            html_reasons.append("HTML mal anidado o sin cerrar en la traducción")
+        if html_reasons:
+            add("html", key, "; ".join(html_reasons) + " (forma plural que solo tiene la traducción)")
     return {"findings": findings, "summary": {kind: len(items) for kind, items in findings.items()}}
 
 
