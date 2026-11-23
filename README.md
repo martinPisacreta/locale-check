@@ -43,6 +43,40 @@ reports, among others:
 
 and exits with code 1.
 
+## Use it in GitHub Actions
+
+Add a workflow like this to your repository and change the file pairs to your own (source first, translation second). The step fails when a translation has missing or extra keys, changed placeholders or broken HTML, so the pull request shows it before merge:
+
+```yaml
+name: locale-check
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  locales:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: martinPisacreta/locale-check
+          ref: v0.1.0
+          path: .locale-check
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - name: Check translations
+        run: |
+          status=0
+          for lang in de es fr; do
+            python .locale-check/locale_check.py config/locales/en.yml "config/locales/$lang.yml" || status=1
+          done
+          exit $status
+```
+
+This repository's own [CI](.github/workflows/ci.yml) runs the tests, accepts a correct translation (`samples/es.yml`) and checks that a broken one (`samples/de.yml`) is rejected with exit code 1.
+
 ## Tests
 
 ```sh

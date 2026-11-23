@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - name: Unit tests
+        run: python -m unittest -v test_locale_check
+      - name: A correct translation passes
+        run: python locale_check.py samples/en.yml samples/es.yml
+      - name: A broken translation is rejected
+        run: |
+          set +e
+          python locale_check.py samples/en.yml samples/de.yml > report.md
+          code=$?
+          cat report.md
+          test "$code" -eq 1

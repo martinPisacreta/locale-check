@@ -1,0 +1,15 @@
+es:
+  checkout:
+    title: "Pago"
+    total: "Total: %{amount}"
+    items:
+      one: "%{count} producto en tu carrito"
+      other: "%{count} productos en tu carrito"
+    terms_html: 'Acepto los <a href="%{url}">términos</a> y la <strong>política de privacidad</strong>'
+    shipped: "Enviado el %s por %s"
+    welcome: "Hola %1$s, tenés %2$d mensajes nuevos"
+    discount: "Ahorrá %.1f%% hoy"
+    empty: "Tu carrito está vacío"
+  errors:
+    blank: "no puede estar vacío"
+    too_long: "es demasiado largo (el máximo es %{count} caracteres)"
