@@ -239,13 +239,16 @@ def compare(source, translation):
         # must not invent one: every named or numbered variable has to exist somewhere in the
         # source plural group (Codex audit 23/11 13:59Z).
         allowed_named, allowed_numbered = collections.Counter(), collections.Counter()
+        source_positional, source_spans = [], set()
         for form in src_groups[parent]:
             ref_text = src.get(f"{parent}.{form}" if parent else form)
             if isinstance(ref_text, str):
-                named, numbered, _ = variables(ref_text)
+                named, numbered, ref_positional = variables(ref_text)
                 allowed_named |= named
                 allowed_numbered |= numbered
-        named, numbered, _ = variables(translated)
+                source_positional.append(ref_positional)
+                source_spans.add(len(LINK_MARKER.findall(ref_text)))
+        named, numbered, positional_args = variables(translated)
         var_reasons = []
         invented = sorted(set(named) - set(allowed_named))
         if invented:
@@ -253,6 +256,17 @@ def compare(source, translation):
         invented_numbered = sorted(set(numbered) - set(allowed_numbered))
         if invented_numbered:
             var_reasons.append(f"printf numerados que no existen en el grupo de origen: {invented_numbered!r}")
+        # printf without a number (%s, %d) is filled by position: the added form may only keep the
+        # arguments of a source form, in order, or drop trailing ones; anything else shifts or invents
+        # an argument. Link markers have to match some source form and be closed (Codex audit 23/11 15:56Z).
+        if source_positional and not any(list(positional_args) == list(ref)[:len(positional_args)]
+                                         for ref in source_positional):
+            var_reasons.append(f"printf sin número que no siguen a ninguna forma del origen: {list(positional_args)!r}")
+        spans = len(LINK_MARKER.findall(translated))
+        if source_spans and spans not in source_spans:
+            var_reasons.append(f"marcadores de enlace __…__ distintos: {sorted(source_spans)} en el origen → {spans}")
+        if translated.count("__") % 2:
+            var_reasons.append("marcador de enlace __ sin cerrar en la traducción")
         if var_reasons:
             add("variables", key, "; ".join(var_reasons) + " (forma plural que solo tiene la traducción)")
         html_translated = NAMED.sub('', translated)

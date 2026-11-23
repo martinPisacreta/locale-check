@@ -220,6 +220,33 @@ class LocaleCheckTests(unittest.TestCase):
         self.assertFalse(report['findings']['variables'])
         self.assertFalse(checker.has_errors(report))
 
+    def test_added_plural_form_with_invented_unnumbered_argument_fails(self):
+        report = checker.compare(
+            {'cart': {'one': '%d item', 'other': '%d items'}},
+            {'cart': {'one': '%d produkt', 'few': '%d produkty w %s', 'other': '%d produktów'}},
+        )
+        self.assertEqual([item['key'] for item in report['findings']['variables']], ['cart.few'])
+        self.assertIn('sin número', report['findings']['variables'][0]['reason'])
+        self.assertTrue(checker.has_errors(report))
+
+    def test_added_plural_form_with_lost_or_open_link_fails(self):
+        report = checker.compare(
+            {'cart': {'one': '%{count} item, see __Docs__', 'other': '%{count} items, see __Docs__'}},
+            {'cart': {'one': '%{count} produkt, __Dokumentacja__', 'few': '%{count} produkty, Dokumentacja',
+                      'many': '%{count} produktów, __Dokumentacja', 'other': '%{count} produktu, __Dokumentacja__'}},
+        )
+        self.assertEqual(sorted(item['key'] for item in report['findings']['variables']), ['cart.few', 'cart.many'])
+        self.assertTrue(checker.has_errors(report))
+
+    def test_added_plural_form_may_keep_or_drop_trailing_unnumbered_arguments_and_links(self):
+        report = checker.compare(
+            {'cart': {'one': '%d item in %s, __Docs__', 'other': '%d items in %s, __Docs__'}},
+            {'cart': {'one': '%d produkt w %s, __Pomoc__', 'few': '%d produkty w %s, __Pomoc__',
+                      'many': '%d produktów, __Pomoc__', 'other': '%d produktu w %s, __Pomoc__'}},
+        )
+        self.assertFalse(report['findings']['variables'])
+        self.assertFalse(checker.has_errors(report))
+
     def test_entire_missing_plural_group_is_not_suppressed(self):
         report = checker.compare({'cart': {'one': 'One', 'other': 'Several'}}, {})
         self.assertEqual(report['summary']['missing'], 2)
